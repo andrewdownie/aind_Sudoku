@@ -37,24 +37,47 @@ def naked_twins(values):
     Returns:
         the values dictionary with the naked twins eliminated from peers.
     """
-    i = 0
-    for value in values :
-        i = i + 1
-        print("i is: " + str(i))
-        print("Value is: " + boxes[value])
-        if(len(boxes[value]) == 2):
-            print("Length of value is 2")
 
 
     # Find all instances of naked twins
     # Eliminate the naked twins as possibilities for their peers
-    # This needs to happen on diagonals too (shoudl be taken care of automatically by the peer groups)
+    for value in values:
+        if(len(values[value]) == 2):
+            for peer in peers[value]:
+                if(values[peer] == values[value]):
+                    values = apply_naked_twins(values, value, peer)
+
+
 
     # go through all cells
     #   if the current cell has two values
     #       go through all of the current cells peers   
     #           if any peer contains the same value as the current cell
-    #               remove these two values from all peers except the current cell and the peer with the matching value
+    #               apply_naked_twins 
+
+    if values is None:
+        print("naked_twins, values is None")
+    return values
+
+def apply_naked_twins(values, value, matchingPeer):
+    # go through all peers of value
+    #   if not value and not peer that had 2 values that matched
+    #       remove first value from current peer
+    #       remove second value from current peer
+
+    for peer in peers[value]:
+        if(peer != value and peer != matchingPeer):
+            values[peer] = values[peer].replace(values[value][0], "")
+            values[peer] = values[peer].replace(values[value][1], "")
+            
+
+    
+    #print("Peer line is: " + peerLine)
+    
+    #print("Apply naked twins to: " + str(value) + " and " + str(matchingPeer))
+    if values is None:
+        print("apply_naked_twins, values is None")
+    return values
  
 
 def grid_values(grid):
@@ -127,12 +150,21 @@ def reduce_puzzle(values):
     stalled = False
     while not stalled:
         solved_values_before = len([box for box in values.keys() if len(values[box]) == 1])
+
         values = eliminate(values)
+        if(values == None):
+            print("Values became none")
         values = only_choice(values)
-        values = naked_twins(values)
+        if(values == None):
+            print("Values became none")
+        #values = naked_twins(values)
+        if(values == None):
+            print("Values became none")
+
         solved_values_after = len([box for box in values.keys() if len(values[box]) == 1])
         stalled = solved_values_before == solved_values_after
         if len([box for box in values.keys() if len(values[box]) == 0]):
+            print("reduce puzzle returned false")
             return False
     return values
 
@@ -142,6 +174,7 @@ def search(values):
     values = reduce_puzzle(values)
     # Choose one of the unfilled squares with the fewest possibilities
     if values is False:
+        print("Search returned false ---- ")
         return False# reduce found the puzzle to be unsolvable
     if all(len(values[s]) == 1 for s in boxes):
         return values#there is exactly one value in every box, so we solved it!
@@ -160,6 +193,9 @@ def search(values):
         if attempt:
             return attempt
 
+    #return values #TODO: I added this, otherwise it would become None
+    return False#TODO: also added this or it would become None
+
 def solve(grid):
     """
     Find the solution to a Sudoku grid.
@@ -169,8 +205,20 @@ def solve(grid):
     Returns:
         The dictionary representation of the final sudoku grid. False if no solution exists.
     """
+    #convert 81 char board to dictionary board
     values = grid_values(grid)
-    return search(values)
+
+    display(values)
+    input("Before")
+    values = search(values)
+    if(values is False):
+        print("The puzzle was not solved!")
+    else:
+        #for some reason, values is becoming noneType, so tries to be displayed and then errors out, this is coming form naked_twins
+        display(values)
+    input("After")
+
+    return values
 
 if __name__ == '__main__':
     diag_sudoku_grid = '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
