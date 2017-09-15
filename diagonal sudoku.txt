@@ -1,0 +1,6 @@
+the generation of cell peers will need to be changed...
+
+
+not entirely sure how at the moment, but my current guess is along the lines of:
+	* for a cell thats on a diagonal: 
+		these cells peer dictionary lookup needs to include all of the other cells that are on that diagnal, while removing duplicates

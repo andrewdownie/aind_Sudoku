@@ -1,0 +1,5 @@
+CONSTRAINT PROPAGATION
+Constraint Propagation is all about using local constraints in a space (in the case of Sudoku, the constraints of each square) 
+to dramatically reduce the search space. As we enforce each constraint, we see how it introduces new constraints for other 
+parts of the board that can help us further reduce the number of possibilities. We have an entire lesson devoted to Constraint Propagation 
+but let's quickly see some other famous AI problems it helps us solve.

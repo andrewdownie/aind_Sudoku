@@ -1,0 +1,5 @@
+go through each row/col one at a time
+	for each cell in current row/col with two values
+		find another cell in current row/col with two values
+			if the two values in the two cells are the same
+				remove those two values from the rest of the cell in the row/col
