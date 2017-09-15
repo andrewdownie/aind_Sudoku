@@ -30,7 +30,6 @@ def assign_value(values, box, value):
     return values
 
 def naked_twins(values):
-    # I am currently applying naked_twins to all peers, it should only be applied to the current col/row
     """Eliminate values using the naked twins strategy.
     Args:
         values(dict): a dictionary of the form {'box_name': '123456789', ...}
@@ -45,9 +44,14 @@ def naked_twins(values):
     # Eliminate the naked twins as possibilities for their peers
     for value in values:
         if(len(values[value]) == 2):
-            for peer in peers[value]:
-                if(values[peer] == values[value]):
-                    values = apply_naked_twins(values, value, peer)
+            # I am currently applying naked_twins to all peers, it should only be applied to the current unit
+            #TODO: go through each cell in this row
+            #TODO: go through each cell in this col
+            #TODO: go through each cell in this square
+            for unit in units[value]:
+                for peer in unit:
+                    if(values[peer] == values[value]):
+                        values = apply_naked_twins(values, unit, value, peer)
 
 
 
@@ -56,22 +60,25 @@ def naked_twins(values):
     #       go through all of the current cells peers   
     #           if any peer contains the same value as the current cell
     #               apply_naked_twins 
+
     if(set(values_before.values()) != set(values.values())):
         print("naked twins changed values")
-        display(values_before)
         input("before")
-        display(values)
+        display(values_before)
+        print("\n\n\n")
         input("after")
+        display(values)
+        print("\n\n\n")
 
     return values
 
-def apply_naked_twins(values, value, matchingPeer):
+def apply_naked_twins(values, unit, value, matchingPeer):
     # go through all peers of value
     #   if not value and not peer that had 2 values that matched
     #       remove first value from current peer
     #       remove second value from current peer
 
-    for peer in peers[value]:
+    for peer in unit:
         if(peer != value and peer != matchingPeer):
             values[peer] = values[peer].replace(values[value][0], "")
             values[peer] = values[peer].replace(values[value][1], "")
