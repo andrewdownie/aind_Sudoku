@@ -30,6 +30,7 @@ def assign_value(values, box, value):
     return values
 
 def naked_twins(values):
+    # I am currently applying naked_twins to all peers, it should only be applied to the current col/row
     """Eliminate values using the naked twins strategy.
     Args:
         values(dict): a dictionary of the form {'box_name': '123456789', ...}
@@ -37,6 +38,7 @@ def naked_twins(values):
     Returns:
         the values dictionary with the naked twins eliminated from peers.
     """
+    values_before = values.copy()
 
 
     # Find all instances of naked twins
@@ -54,9 +56,13 @@ def naked_twins(values):
     #       go through all of the current cells peers   
     #           if any peer contains the same value as the current cell
     #               apply_naked_twins 
+    if(set(values_before.values()) != set(values.values())):
+        print("naked twins changed values")
+        display(values_before)
+        input("before")
+        display(values)
+        input("after")
 
-    if values is None:
-        print("naked_twins, values is None")
     return values
 
 def apply_naked_twins(values, value, matchingPeer):
@@ -157,7 +163,13 @@ def reduce_puzzle(values):
         values = only_choice(values)
         if(values == None):
             print("Values became none")
-        #values = naked_twins(values)
+
+
+        #display(values)
+        #input("before naked_twins")
+        values = naked_twins(values)
+        #display(values)
+        #input("after naked_twins")
         if(values == None):
             print("Values became none")
 
@@ -208,15 +220,15 @@ def solve(grid):
     #convert 81 char board to dictionary board
     values = grid_values(grid)
 
-    display(values)
-    input("Before")
+    #display(values)
+    #input("Before")
     values = search(values)
     if(values is False):
         print("The puzzle was not solved!")
     else:
         #for some reason, values is becoming noneType, so tries to be displayed and then errors out, this is coming form naked_twins
         display(values)
-    input("After")
+    #input("After")
 
     return values
 
