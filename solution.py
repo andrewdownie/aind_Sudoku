@@ -45,12 +45,11 @@ def naked_twins(values):
     for value in values:
         if(len(values[value]) == 2):
             # I am currently applying naked_twins to all peers, it should only be applied to the current unit
-            #TODO: go through each cell in this row
-            #TODO: go through each cell in this col
-            #TODO: go through each cell in this square
+            # I guess a good question to answer would be: is a unit actually what I think that it is?
             for unit in units[value]:
                 for peer in unit:
-                    if(values[peer] == values[value]):
+                    if(values[peer] == values[value] and value != peer):
+                        #print("Value key: " + value + ", peer key: " + peer)
                         values = apply_naked_twins(values, unit, value, peer)
 
 
@@ -61,14 +60,18 @@ def naked_twins(values):
     #           if any peer contains the same value as the current cell
     #               apply_naked_twins 
 
-    if(set(values_before.values()) != set(values.values())):
-        print("naked twins changed values")
-        input("before")
-        display(values_before)
-        print("\n\n\n")
-        input("after")
-        display(values)
-        print("\n\n\n")
+
+    #if(set(values_before.values()) != set(values.values())):
+    #    print("\n\n\n")
+    #    print(unit)
+    #    input("current unit")
+    #    print("naked twins changed values")
+    #    input("before")
+    #    display(values_before)
+    #    print("\n\n\n")
+    #    input("after")
+    #    display(values)
+    #    print("\n\n\n")
 
     return values
 
@@ -79,6 +82,7 @@ def apply_naked_twins(values, unit, value, matchingPeer):
     #       remove second value from current peer
 
     for peer in unit:
+        #how does  a match in one unit (a row) result in another unit having this applied (a column)?
         if(peer != value and peer != matchingPeer):
             values[peer] = values[peer].replace(values[value][0], "")
             values[peer] = values[peer].replace(values[value][1], "")
