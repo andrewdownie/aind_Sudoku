@@ -6,13 +6,36 @@ cols = '123456789'
 def cross(a, b):
     return [s+t for s in a for t in b]
 
+def build_diagonal_units():
+    i = 0
+    diagonal = []
+
+    d1 = []
+    for i in range(0, len(rows)):
+        d1.append(rows[i] + cols[i])
+    diagonal.append(d1)
+
+    d2 = []
+    for i in range(0, len(rows)):
+        d2.append(rows[i] + cols[len(cols) - i - 1])
+    diagonal.append(d2)
+
+    #print("Diagonal built was: " + str(diagonal))
+    return diagonal
+
+
 boxes = cross(rows, cols)
 row_units = [cross(r, cols) for r in rows]
 column_units = [cross(rows, c) for c in cols]
 square_units = [cross(rs, cs) for rs in ('ABC','DEF','GHI') for cs in ('123','456','789')]
-unitlist = row_units + column_units + square_units
+diagonal_units = build_diagonal_units() 
+unitlist = row_units + column_units + square_units + diagonal_units  #TODO: what is row_units? adding diagonal_units to this causes an error lines 29 
+#print(str(type(row_units[0])))
 units = dict((s, [u for u in unitlist if s in u]) for s in boxes)
 peers = dict((s, set(sum(units[s],[]))-set([s])) for s in boxes)
+
+        
+
 
 def assign_value(values, box, value):
     """
