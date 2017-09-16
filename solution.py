@@ -4,9 +4,24 @@ rows = 'ABCDEFGHI'
 cols = '123456789'
 
 def cross(a, b):
+    """cross each character of two strings 
+    Args:
+        a(string): first list of characters to be crossed
+        b(string): second list of characters to be crossed
+    Returns:
+        a list with len(a) * len(b) indices, 
+        where each index contains two characters,
+        one character from string a, and one from string b
+    """
     return [s+t for s in a for t in b]
 
 def build_diagonal_units():
+    """creates the diagonal grouping of cells for diagonal sudoku
+    Returns:
+        a list containing two sublists:
+            - the first sublist holds characters: A1, B2 ... I9 
+            - the second sublist holds characters: A9, B8 ... I1
+    """
     i = 0
     diagonal = []
 
@@ -22,7 +37,6 @@ def build_diagonal_units():
 
     return diagonal
 
-
 boxes = cross(rows, cols)
 row_units = [cross(r, cols) for r in rows]
 column_units = [cross(rows, c) for c in cols]
@@ -32,15 +46,11 @@ unitlist = row_units + column_units + square_units + diagonal_units
 units = dict((s, [u for u in unitlist if s in u]) for s in boxes)
 peers = dict((s, set(sum(units[s],[]))-set([s])) for s in boxes)
 
-        
-
-
 def assign_value(values, box, value):
     """
-    Please use this function to update your values dictionary!
-    Assigns a value to a given box. If it updates the board record it.
+    assign_value:
+        Assigns a value to a given box.
     """
-
     # Don't waste memory appending actions that don't actually change any values
     if values[box] == value:
         return values
@@ -72,6 +82,13 @@ def naked_twins(values):
     return values
 
 def apply_naked_twins(values, unit, value, matchingPeer):
+    """If a naked twins case is found, this should be called to remove all values from the cells units
+    Args:
+        values(dict): a dictionary of the form {'box_name': '123456789', ...}
+        unit(list): the list of cells in the unit related to the found naked twin pair
+        value(string): the key to the current box that is part of the found naked twin
+        matchingPeer(string): the key to the box that is part of the found naked twin
+    """
     for peer in unit:
         if(peer != value and peer != matchingPeer):
             values[peer] = values[peer].replace(values[value][0], "")
