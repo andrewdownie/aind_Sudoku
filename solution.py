@@ -20,7 +20,6 @@ def build_diagonal_units():
         d2.append(rows[i] + cols[len(cols) - i - 1])
     diagonal.append(d2)
 
-    #print("Diagonal built was: " + str(diagonal))
     return diagonal
 
 
@@ -29,8 +28,7 @@ row_units = [cross(r, cols) for r in rows]
 column_units = [cross(rows, c) for c in cols]
 square_units = [cross(rs, cs) for rs in ('ABC','DEF','GHI') for cs in ('123','456','789')]
 diagonal_units = build_diagonal_units() 
-unitlist = row_units + column_units + square_units + diagonal_units  #TODO: what is row_units? adding diagonal_units to this causes an error lines 29 
-#print(str(type(row_units[0])))
+unitlist = row_units + column_units + square_units + diagonal_units 
 units = dict((s, [u for u in unitlist if s in u]) for s in boxes)
 peers = dict((s, set(sum(units[s],[]))-set([s])) for s in boxes)
 
@@ -62,61 +60,23 @@ def naked_twins(values):
     """
     values_before = values.copy()
 
-
     # Find all instances of naked twins
     # Eliminate the naked twins as possibilities for their peers
     for value in values:
         if(len(values[value]) == 2):
-            # I am currently applying naked_twins to all peers, it should only be applied to the current unit
-            # I guess a good question to answer would be: is a unit actually what I think that it is?
             for unit in units[value]:
                 for peer in unit:
                     if(values[peer] == values[value] and value != peer):
-                        #print("Value key: " + value + ", peer key: " + peer)
                         values = apply_naked_twins(values, unit, value, peer)
-
-
-
-    # go through all cells
-    #   if the current cell has two values
-    #       go through all of the current cells peers   
-    #           if any peer contains the same value as the current cell
-    #               apply_naked_twins 
-
-
-    #if(set(values_before.values()) != set(values.values())):
-    #    print("\n\n\n")
-    #    print(unit)
-    #    input("current unit")
-    #    print("naked twins changed values")
-    #    input("before")
-    #    display(values_before)
-    #    print("\n\n\n")
-    #    input("after")
-    #    display(values)
-    #    print("\n\n\n")
 
     return values
 
 def apply_naked_twins(values, unit, value, matchingPeer):
-    # go through all peers of value
-    #   if not value and not peer that had 2 values that matched
-    #       remove first value from current peer
-    #       remove second value from current peer
-
     for peer in unit:
-        #how does  a match in one unit (a row) result in another unit having this applied (a column)?
         if(peer != value and peer != matchingPeer):
             values[peer] = values[peer].replace(values[value][0], "")
             values[peer] = values[peer].replace(values[value][1], "")
-            
-
     
-    #print("Peer line is: " + peerLine)
-    
-    #print("Apply naked twins to: " + str(value) + " and " + str(matchingPeer))
-    if values is None:
-        print("apply_naked_twins, values is None")
     return values
  
 
@@ -190,23 +150,9 @@ def reduce_puzzle(values):
     stalled = False
     while not stalled:
         solved_values_before = len([box for box in values.keys() if len(values[box]) == 1])
-
         values = eliminate(values)
-        if(values == None):
-            print("Values became none")
         values = only_choice(values)
-        if(values == None):
-            print("Values became none")
-
-
-        #display(values)
-        #input("before naked_twins")
         values = naked_twins(values)
-        #display(values)
-        #input("after naked_twins")
-        if(values == None):
-            print("Values became none")
-
         solved_values_after = len([box for box in values.keys() if len(values[box]) == 1])
         stalled = solved_values_before == solved_values_after
         if len([box for box in values.keys() if len(values[box]) == 0]):
@@ -230,17 +176,12 @@ def search(values):
 
     
     # Now use recursion to solve each one of the resulting sudokus, and if one returns a value (not False), return that answer!
-
-    # If you're stuck, see the solution.py tab!
     for value in values[s]:
         new_sudoku = values.copy()
         new_sudoku[s] = value
         attempt = search(new_sudoku)
         if attempt:
             return attempt
-
-    #return values #TODO: I added this, otherwise it would become None
-    return False#TODO: also added this or it would become None
 
 def solve(grid):
     """
@@ -251,18 +192,11 @@ def solve(grid):
     Returns:
         The dictionary representation of the final sudoku grid. False if no solution exists.
     """
-    #convert 81 char board to dictionary board
+    # convert 81 char board to dictionary board
     values = grid_values(grid)
 
-    #display(values)
-    #input("Before")
+    # solve the board
     values = search(values)
-    if(values is False):
-        print("The puzzle was not solved!")
-    else:
-        #for some reason, values is becoming noneType, so tries to be displayed and then errors out, this is coming form naked_twins
-        display(values)
-    #input("After")
 
     return values
 
