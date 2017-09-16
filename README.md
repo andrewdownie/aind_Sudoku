@@ -3,11 +3,17 @@
 
 # Question 1 (Naked Twins)
 Q: How do we use constraint propagation to solve the naked twins problem?  
-A: *Student should provide answer here*
+A: In order to solve the naked twins problem, we should use constraint propagation to 
+   check each unit for a matching pair of cells that contain exactly two values. Then,
+   once we find these matching cells, we should remove the two values they contain from
+   all other cells in the units they are both a part of.
 
 # Question 2 (Diagonal Sudoku)
 Q: How do we use constraint propagation to solve the diagonal sudoku problem?  
-A: *Student should provide answer here*
+A: In order to solve the diagonal sudoku problem, we should add the diagonal units
+   to the units that already exists. With the diagonal units added, the existing 
+   contraint propagation will be applied to ensure the board is solved while meeting
+   the requirements of the diagonal sudoku challenge.
 
 ### Install
 

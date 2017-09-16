@@ -4,7 +4,8 @@ rows = 'ABCDEFGHI'
 cols = '123456789'
 
 def cross(a, b):
-    """cross each character of two strings 
+    """
+    cross each character of two strings 
     Args:
         a(string): first list of characters to be crossed
         b(string): second list of characters to be crossed
@@ -16,7 +17,8 @@ def cross(a, b):
     return [s+t for s in a for t in b]
 
 def build_diagonal_units():
-    """creates the diagonal grouping of cells for diagonal sudoku
+    """
+    creates the diagonal grouping of cells for diagonal sudoku
     Returns:
         a list containing two sublists:
             - the first sublist holds characters: A1, B2 ... I9 
@@ -37,6 +39,9 @@ def build_diagonal_units():
 
     return diagonal
 
+"""
+Create all the unit groups we will need for contraint propagation to work.
+"""
 boxes = cross(rows, cols)
 row_units = [cross(r, cols) for r in rows]
 column_units = [cross(rows, c) for c in cols]
@@ -48,8 +53,7 @@ peers = dict((s, set(sum(units[s],[]))-set([s])) for s in boxes)
 
 def assign_value(values, box, value):
     """
-    assign_value:
-        Assigns a value to a given box.
+    Assigns a value to a given box.
     """
     # Don't waste memory appending actions that don't actually change any values
     if values[box] == value:
@@ -61,7 +65,8 @@ def assign_value(values, box, value):
     return values
 
 def naked_twins(values):
-    """Eliminate values using the naked twins strategy.
+    """
+    Eliminate values using the naked twins strategy.
     Args:
         values(dict): a dictionary of the form {'box_name': '123456789', ...}
 
@@ -82,7 +87,8 @@ def naked_twins(values):
     return values
 
 def apply_naked_twins(values, unit, value, matchingPeer):
-    """If a naked twins case is found, this should be called to remove all values from the cells units
+    """
+    If a naked twins case is found, this should be called to remove all values from the cells units
     Args:
         values(dict): a dictionary of the form {'box_name': '123456789', ...}
         unit(list): the list of cells in the unit related to the found naked twin pair
@@ -178,7 +184,9 @@ def reduce_puzzle(values):
     return values
 
 def search(values):
-    "Using depth-first search and propagation, create a search tree and solve the sudoku."
+    """
+    Using depth-first search and propagation, create a search tree and solve the sudoku.
+    """
     # First, reduce the puzzle using the previous function
     values = reduce_puzzle(values)
     # Choose one of the unfilled squares with the fewest possibilities
