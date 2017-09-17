@@ -21,20 +21,24 @@ def build_diagonal_units():
     creates the diagonal grouping of cells for diagonal sudoku
     Returns:
         a list containing two sublists:
-            - the first sublist holds characters: A1, B2 ... I9 
-            - the second sublist holds characters: A9, B8 ... I1
+            - the first sublist holds characters: A1, B2, ... I9 
+            - the second sublist holds characters: A9, B8, ... I1
     """
     i = 0
     diagonal = []
 
+    # Create the first sublist: A1, B2, ... I9
     d1 = []
     for i in range(0, len(rows)):
         d1.append(rows[i] + cols[i])
-    diagonal.append(d1)
 
+    # Create the second sublist: A9, B8, ... I1
     d2 = []
     for i in range(0, len(rows)):
         d2.append(rows[i] + cols[len(cols) - i - 1])
+
+    # Add the two sublists to a list
+    diagonal.append(d1)
     diagonal.append(d2)
 
     return diagonal
@@ -59,7 +63,9 @@ def assign_value(values, box, value):
     if values[box] == value:
         return values
 
+    # Assign the value
     values[box] = value
+    # If the box has one value, then we've solved it, and we should add it to the assignments list so it can be displayed by pygame
     if len(value) == 1:
         assignments.append(values.copy())
     return values
@@ -75,18 +81,25 @@ def naked_twins(values):
     """
     values_before = values.copy()
 
-    # Find all instances of naked twins
-    # Eliminate the naked twins as possibilities for their peers
-    for value in values:
-        if(len(values[value]) == 2):
-            for unit in units[value]:
-                for peer in unit:
-                    if(values[peer] == values[value] and value != peer):
-                        values = apply_naked_twins(values, unit, value, peer)
+    # Go through each cell of the sudoku
+    for currentCell in values:
+        # If the current cell has two possible values
+        if(len(values[currentCell]) == 2):
+            # Go through each of the current cells related units
+            for unit in units[currentCell]:
+                # For each cell in the current unit 
+                for unitCell in unit:
+                    # Make sure the current cell and current unit cell are not refering to the same cell 
+                    #   (Since the currentCell is within the unit we are currently going thorugh)
+                    if(currentCell != unitCell):
+                        # If the current cell and the current unit cell have the same values
+                        if(values[unitCell] == values[currentCell]):
+                            # Then we've found a case of naked twins
+                            values = apply_naked_twins(values, unit, currentCell, unitCell)
 
     return values
 
-def apply_naked_twins(values, unit, value, matchingPeer):
+def apply_naked_twins(values, unit, matchingCell, matchingPeer):
     """
     If a naked twins case is found, this should be called to remove all values from the cells units
     Args:
@@ -95,10 +108,13 @@ def apply_naked_twins(values, unit, value, matchingPeer):
         value(string): the key to the current box that is part of the found naked twin
         matchingPeer(string): the key to the box that is part of the found naked twin
     """
-    for peer in unit:
-        if(peer != value and peer != matchingPeer):
-            values[peer] = values[peer].replace(values[value][0], "")
-            values[peer] = values[peer].replace(values[value][1], "")
+    # Go through each cell in the unit we found the naked twins in
+    for unitCell in unit:
+        # If the current  unitCell is not either of the two cells that make up the naked twins
+        if(unitCell != matchingCell and unitCell != matchingPeer):
+            # Remove the values found in the naked twins from the current unitCell
+            values[unitCell] = values[unitCell].replace(values[matchingCell][0], "")
+            values[unitCell] = values[unitCell].replace(values[matchingCell][1], "")
     
     return values
  
@@ -113,12 +129,17 @@ def grid_values(grid):
     """
     chars = []
     digits = '123456789'
+
+    # Go through each character of the 81 character string
     for c in grid:
+        # If the character is a number 1..9 then add it to the list as is
         if c in digits:
             chars.append(c)
+        # Otherwise, if the character is a period, add the characters 1..9 to show that it could hold any value
         if c == '.':
             chars.append(digits)
     assert len(chars) == 81
+    # Match each character from the list we just created, with every sudoku board index in order to create a dictionary
     return dict(zip(boxes, chars))
 
 def display(values):
@@ -127,8 +148,14 @@ def display(values):
     Input: The sudoku in dictionary form
     Output: None
     """
+
+    # Calculate the width of box
     width = 1+max(len(values[s]) for s in boxes)
+
+    # Create the line that splits square units horizontally 
     line = '+'.join(['-'*(width*3)]*3)
+
+    # Go through each row, and print each line after formating it
     for r in rows:
         print(''.join(values[r+c].center(width)+('|' if c in '36' else '')
                       for c in cols))
@@ -141,10 +168,15 @@ def eliminate(values):
     Input: A sudoku in dictionary form.
     Output: The resulting sudoku in dictionary form.
     """
+    # Get a list of all the boxes on the board that have been solved
     solved_values = [box for box in values.keys() if len(values[box]) == 1]
+    # Go though each box that is solved
     for box in solved_values:
+        # get the digit from the current box
         digit = values[box]
+        # Go through each peer of the current box
         for peer in peers[box]:
+            # Remove the digit from the solved box from all other boxes that share that unit
             values[peer] = values[peer].replace(digit,'')
     return values
 
@@ -154,10 +186,15 @@ def only_choice(values):
     Input: A sudoku in dictionary form.
     Output: The resulting sudoku in dictionary form.
     """
+    # Go through every unit in the board
     for unit in unitlist:
+        # Go through every valid sudoku digit
         for digit in '123456789':
+            # Create a list that contains all the possible locations for the current digit
             dplaces = [box for box in unit if digit in values[box]]
+            # If there is only one possible place for the current digit
             if len(dplaces) == 1:
+                # Then place that digit in the only spot it can go
                 values[dplaces[0]] = digit
     return values
 
@@ -169,15 +206,25 @@ def reduce_puzzle(values):
     Input: A sudoku in dictionary form.
     Output: The resulting sudoku in dictionary form.
     """
+
+    # Find all cells that have been solved
     solved_values = [box for box in values.keys() if len(values[box]) == 1]
     stalled = False
+
+    # Keep looping until a stall is detected
     while not stalled:
+        # Count how many values were solved before
         solved_values_before = len([box for box in values.keys() if len(values[box]) == 1])
+        # Apply all of our strategies to solve the board
         values = eliminate(values)
         values = only_choice(values)
         values = naked_twins(values)
+        # Count how many values are solved after
         solved_values_after = len([box for box in values.keys() if len(values[box]) == 1])
+        # If we haven't solved any additional cells, then we are getting no where
         stalled = solved_values_before == solved_values_after
+
+        # TODO: I'm not sure what this does atm......................................................................
         if len([box for box in values.keys() if len(values[box]) == 0]):
             print("reduce puzzle returned false")
             return False
@@ -202,9 +249,12 @@ def search(values):
     
     # Now use recursion to solve each one of the resulting sudokus, and if one returns a value (not False), return that answer!
     for value in values[s]:
+        # copy the current board and assign the value to the cell we want want to search on
         new_sudoku = values.copy()
         new_sudoku[s] = value
+        # begin the search
         attempt = search(new_sudoku)
+        # if the search was successful, return it up the chain
         if attempt:
             return attempt
 
